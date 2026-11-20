@@ -327,10 +327,30 @@ accessForm.addEventListener("submit", function(event) {
 
     accessPanel.classList.add("granted-animation");
 
-    setTimeout(() => {
-        grantAccess(character);
-    }, 700);
+    setTimeout(async () => {
 
+        const { data: sessionData } =
+            await window.supabaseClient.auth.getSession();
+
+        if (!sessionData.session) {
+            const { error } =
+                await window.supabaseClient.auth.signInAnonymously();
+
+            if (error) {
+                console.error("AUTHENTICATION ERROR:", error);
+
+                const message = document.getElementById("accessMessage");
+                message.textContent = "CONNECTION ERROR — PLEASE TRY AGAIN.";
+                message.className = "message denied";
+                return;
+            }
+        }
+
+        console.log("SCP FOUNDATION // PERSONNEL SESSION ACTIVE");
+
+        grantAccess(character);
+
+    }, 700);
 });
 
 
@@ -355,7 +375,54 @@ function safeText(value) {
    7. GRANT ACCESS
 ========================================= */
 
-function grantAccess(character) {
+async function grantAccess(character) {
+    // SCP FOUNDATION // REGISTER PERSONNEL SESSION
+
+    const supabase = window.supabaseClient;
+
+    let { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
+
+    if (sessionError) {
+        console.error("SESSION ERROR:", sessionError);
+        alert("SESSION INITIALIZATION FAILED.");
+        return;
+    }
+
+    if (!sessionData.session) {
+        const { data, error } = await supabase.auth.signInAnonymously();
+
+        if (error || !data.session) {
+            console.error("ANONYMOUS LOGIN ERROR:", error);
+            alert("ANONYMOUS LOGIN FAILED.");
+            return;
+        }
+
+        sessionData = data;
+    }
+
+    const userId = sessionData.session.user.id;
+
+    const characterKey = character.name
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "_");
+
+    const { error: registrationError } =
+        await window.supabaseClient
+            .from("character_sessions")
+            .upsert({
+                character_key: characterKey,
+                character_name: character.name,
+                user_id: userId,
+                updated_at: new Date().toISOString()
+            }, {
+                onConflict: "character_key"
+            });
+
+    if (registrationError) {
+        console.error("PERSONNEL REGISTRATION ERROR:", registrationError);
+    }
 
     const availableModules = permissions[character.type] || [];
 
@@ -1247,3 +1314,5 @@ document.addEventListener("click", function(event) {
     }, 700);
 
 });
+
+
