@@ -665,16 +665,80 @@ window.renderFoundationModule = function(moduleName, character, content) {
    CHANNELS // DIRECT MESSAGES // NOTIFICATIONS
 ===================================================== */
 
-window.renderFoundationCommunications = function(content, character) {
+window.renderFoundationCommunications = async function(content, character) {
+
+    const supabase = window.supabaseClient;
+
+    const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
+
+    if (sessionError || !sessionData.session) {
+        console.error("COMMUNICATIONS: No active session.", sessionError);
+        content.innerHTML = "<p>COMMUNICATION ERROR — NO ACTIVE SESSION.</p>";
+        return;
+    }
+
+    const currentUserId = sessionData.session.user.id;
 
     const storageKey = "scp_communications";
     const currentName = character.name || character.fullName || character.username || "Unknown";
-    const currentId = String(character.id || character.username || character.name || character.fullName || currentName);
+    const currentId = currentUserId;
 
-    let messages = foundationGetData(storageKey, []);
+    let messages = [];
+
+    const { data: savedMessages, error: messagesError } =
+        await supabase
+            .from("chat_messages")
+            .select("*")
+            .order("created_at", { ascending: true });
+
+    if (messagesError) {
+        console.error("COMMUNICATIONS LOAD ERROR:", messagesError);
+    } else {
+        messages = (savedMessages || []).map(message => ({
+            author: message.sender_name || "UNKNOWN PERSONNEL",
+            authorId: message.sender_id,
+            role: message.sender_role || "FOUNDATION PERSONNEL",
+            text: message.content,
+            time: new Date(message.created_at).toLocaleString(),
+            channel: message.channel,
+            recipientId: message.recipient_id,
+            conversationKey: message.recipient_id
+                ? getConversationKey(message.sender_id, message.recipient_id)
+                : null,
+            readBy: []
+        }));
+    }
+
+
+
+    const { data: activeSessions, error: personnelError } =
+        await supabase
+            .from("character_sessions")
+            .select("character_key, character_name, user_id");
+
+    if (personnelError) {
+        console.error("PERSONNEL DIRECTORY ERROR:", personnelError);
+    }
 
     const personnel = (typeof characters !== "undefined" ? characters : [])
-        .filter(person => person.type !== "subject");
+        .filter(person => person.type !== "subject")
+        .map(person => {
+            const key = person.name
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, "_");
+
+            const session = (activeSessions || []).find(
+                item => item.character_key === key
+            );
+
+            return session
+                ? { ...person, onlineUserId: session.user_id }
+                : null;
+        })
+        .filter(Boolean);
+
 
     const currentRole = String(character.type || character.role || "").toLowerCase();
 
@@ -695,7 +759,7 @@ window.renderFoundationCommunications = function(content, character) {
     let activeContact = null;
 
     function personId(person) {
-        return String(person.id || person.username || person.name);
+        return String(person.onlineUserId || person.id || person.username || person.name);
     }
 
     function personTitle(person) {
@@ -1024,52 +1088,124 @@ window.renderFoundationCommunications = function(content, character) {
         });
     });
 
-    chatForm.addEventListener("submit", event => {
+
+    chatForm.addEventListener("submit", async event => {
         event.preventDefault();
 
         const text = chatInput.value.trim();
-
         if (!text) return;
 
-        const message = {
-            author: currentIdentity,
-            authorId: currentId,
-            role: currentTitle,
-            clearance: character.clearance || "UNKNOWN",
-            text,
-            time: new Date().toLocaleString(),
-            readBy: [currentId]
+        let recipientId = null;
+        let channel = activeChannel;
+
+        if (activeView === "dm" && activeContact) {
+            const characterKey = activeContact.name
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, "_");
+
+            const { data: contact, error: contactError } =
+                await supabase
+                    .from("character_sessions")
+                    .select("user_id")
+                    .eq("character_key", characterKey)
+                    .maybeSingle();
+
+            if (contactError || !contact) {
+                console.error("RECIPIENT NOT FOUND:", contactError);
+                alert("PERSONNEL NOT AVAILABLE.");
+                return;
+            }
+
+            recipientId = contact.user_id;
+            channel = null;
+        }
+
+        const newMessage = {
+            sender_id: currentUserId,
+            sender_name: currentIdentity,
+            sender_role: currentTitle,
+            recipient_id: recipientId,
+            recipient_name: activeContact?.name || null,
+            channel: channel,
+            content: text
         };
 
-        if (activeView === "channel") {
-            message.channel = activeChannel;
-        } else if (activeView === "dm" && activeContact) {
-            message.conversationKey = getConversationKey(currentId, personId(activeContact));
-            message.recipientId = personId(activeContact);
-            message.recipientName = activeContact.name;
-        } else {
+        const { data: savedMessage, error: sendError } =
+            await supabase
+                .from("chat_messages")
+                .insert(newMessage)
+                .select()
+                .single();
+
+        if (sendError) {
+            console.error("MESSAGE TRANSMISSION ERROR:", sendError);
+            alert("TRANSMISSION FAILED.");
             return;
         }
 
-        messages.push(message);
-        saveMessages();
+        messages.push({
+            author: savedMessage.sender_name,
+            authorId: savedMessage.sender_id,
+            role: savedMessage.sender_role,
+            text: savedMessage.content,
+            time: new Date(savedMessage.created_at).toLocaleString(),
+            channel: savedMessage.channel,
+            recipientId: savedMessage.recipient_id,
+            conversationKey: savedMessage.recipient_id
+                ? getConversationKey(savedMessage.sender_id, savedMessage.recipient_id)
+                : null,
+            readBy: []
+        });
 
         chatInput.value = "";
-
         drawMessages();
         drawNotifications();
     });
 
     /* Refresh when another profile or browser tab updates local storage */
 
-    window.addEventListener("storage", function(event) {
-        if (event.key === storageKey) {
-            messages = foundationGetData(storageKey, []);
-            drawMessages();
-            drawNotifications();
-        }
-    });
 
+    // SCP FOUNDATION // REALTIME COMMUNICATIONS
+
+    const communicationsSubscription = supabase
+        .channel("scp-communications-" + currentUserId)
+        .on(
+            "postgres_changes",
+            {
+                event: "INSERT",
+                schema: "public",
+                table: "chat_messages"
+            },
+            payload => {
+                const incoming = payload.new;
+
+                // Avoid duplicating messages sent by this session
+                if (incoming.sender_id === currentUserId) return;
+
+                const newMessage = {
+                    author: incoming.sender_name || "UNKNOWN PERSONNEL",
+                    authorId: incoming.sender_id,
+                    role: incoming.sender_role || "FOUNDATION PERSONNEL",
+                    text: incoming.content,
+                    time: new Date(incoming.created_at).toLocaleString(),
+                    channel: incoming.channel,
+                    recipientId: incoming.recipient_id,
+                    conversationKey: incoming.recipient_id
+                        ? getConversationKey(incoming.sender_id, incoming.recipient_id)
+                        : null,
+                    readBy: []
+                };
+
+                messages.push(newMessage);
+
+                drawMessages();
+                drawNotifications();
+            }
+        )
+        .subscribe(status => {
+            console.log("SCP REALTIME STATUS:", status);
+        });
     openChannel("general");
     drawNotifications();
 
