@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SCP Foundation — Internal Database</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <script src="js/app.js" defer></script>
+    <script src="js/dashboard.js" defer></script>
+    <script src="js/modules/foundation-modules.js" defer></script>
+    <script src="js/modules/anomalies.js" defer></script>
+</head>
+
+<body>
+
+    <main class="terminal">
+
+        <!-- TOP SYSTEM BAR -->
+        <header class="top-bar">
+
+            <span class="warning">
+                SCP FOUNDATION // CLASSIFIED
+            </span>
+
+            <span class="system-status">
+                ● SYSTEM OPERATIONAL
+            </span>
+
+        </header>
+
+
+        <!-- ACCESS SCREEN -->
+        <section class="access-panel">
+
+            >
+             <img
+    class="logo-image"
+    src="assets/logo/scp-logo.jpg"
+    alt="SCP Foundation Logo"
+>
+
+            <p class="classification">
+                SECURE DATABASE ACCESS
+            </p>
+
+            <h1>IDENTIFICATION REQUIRED</h1>
+
+            <p class="description">
+                This system is restricted to authorized Foundation
+                personnel and registered anomalous entities.
+                Enter your registered identification name to continue.
+            </p>
+
+
+            <!-- CHARACTER IDENTIFICATION -->
+            <form id="accessForm">
+
+                <label for="characterName">
+                    REGISTERED IDENTIFICATION NAME
+                </label>
+
+                <input
+                    type="text"
+                    id="characterName"
+                    name="characterName"
+                    placeholder="Enter your identification..."
+                    autocomplete="off"
+                    required
+                >
+
+                <button type="submit">
+                    AUTHENTICATE
+                </button>
+
+            </form>
+
+
+            <!-- SYSTEM RESPONSE -->
+            <p id="accessMessage" class="message">
+                AWAITING IDENTIFICATION...
+            </p>
+
+        </section>
+
+
+        <!-- FOOTER -->
+        <footer>
+
+            <p>
+                SCP FOUNDATION — INTERNAL NETWORK
+            </p>
+
+            <p>
+                UNAUTHORIZED ACCESS IS STRICTLY PROHIBITED
+            </p>
+
+            <p>
+                SECURE TERMINAL // ALL RIGHTS RESERVED
+            </p>
+
+        </footer>
+
+    </main>
+
+</body>
+
+</html>
