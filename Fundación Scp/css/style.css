@@ -2905,3 +2905,923 @@ footer {
         max-height: 180px;
     }
 }
+
+/* =========================================
+   PERSONNEL PROFILE EDITOR
+   SCP FOUNDATION // TERMINAL INTERFACE
+========================================= */
+
+.profile-editor {
+    margin-top: 35px;
+    padding: 25px;
+    background: linear-gradient(
+            145deg,
+            rgba(18, 21, 25, 0.98),
+            rgba(10, 12, 15, 0.98)
+    );
+    border: 1px solid rgba(160, 45, 45, 0.35);
+    border-left: 3px solid #963d3d;
+    border-radius: 5px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.profile-editor h3 {
+    color: #c46a6a;
+    font-size: 0.95rem;
+    letter-spacing: 2px;
+    margin-bottom: 25px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(160, 45, 45, 0.25);
+}
+
+.profile-editor label {
+    display: block;
+    margin: 22px 0 9px;
+    color: #a8adb4;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+}
+
+.profile-editor textarea {
+    display: block;
+    width: 100%;
+    min-height: 110px;
+    padding: 15px 17px;
+
+    background: #101419;
+    color: #d6d9dd;
+
+    border: 1px solid #303942;
+    border-radius: 4px;
+    outline: none;
+
+    font-family: "Courier New", monospace;
+    font-size: 0.9rem;
+    line-height: 1.7;
+
+    resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.profile-editor textarea:hover {
+    border-color: #59636d;
+    background: #13191f;
+}
+
+.profile-editor textarea:focus {
+    border-color: #a34b4b;
+    box-shadow: 0 0 0 2px rgba(163, 75, 75, 0.13);
+    background: #15191e;
+}
+
+.profile-editor textarea::placeholder {
+    color: #626b74;
+}
+
+.profile-editor button {
+    margin-top: 25px;
+    padding: 12px 22px;
+
+    background: #762f32;
+    color: #f0e9e9;
+
+    border: 1px solid #a04b4b;
+    border-radius: 3px;
+
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.profile-editor button:hover {
+    background: #963d40;
+    border-color: #c66b6b;
+}
+
+.profile-editor #profileSaveStatus {
+    margin-top: 15px;
+    color: #8fae96;
+    font-family: "Courier New", monospace;
+    font-size: 0.78rem;
+    letter-spacing: 1px;
+}
+
+/* =========================================
+   SCP PERSONNEL PHOTOGRAPHS
+   POLAROID // METAL CLIP STYLE
+========================================= */
+
+.dossier-photo-container {
+    position: relative;
+    display: inline-block;
+    width: 230px;
+    padding: 12px 12px 32px;
+    margin: 22px 15px 25px;
+    background: #dedbd1;
+    border: 1px solid #aaa69c;
+    border-radius: 2px;
+    box-shadow:
+            0 8px 18px rgba(0, 0, 0, 0.45),
+            0 2px 4px rgba(0, 0, 0, 0.3);
+    transform: rotate(-1.5deg);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    z-index: 1;
+}
+
+/* METAL CLIP */
+
+.dossier-photo-container::before {
+    content: "";
+    position: absolute;
+    top: -17px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 43px;
+    height: 29px;
+    background: linear-gradient(
+            135deg,
+            #777d80,
+            #d5d8d8 35%,
+            #858b8e 65%,
+            #555b5e
+    );
+    border: 1px solid #555b5e;
+    border-radius: 5px 5px 3px 3px;
+    box-shadow:
+            0 3px 5px rgba(0, 0, 0, 0.4),
+            inset 0 1px 2px rgba(255, 255, 255, 0.5);
+    z-index: 3;
+}
+
+/* SMALL METAL DETAIL */
+
+.dossier-photo-container::after {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 25px;
+    height: 5px;
+    border: 1px solid rgba(50, 55, 58, 0.8);
+    border-radius: 4px;
+    background: linear-gradient(
+            to bottom,
+            #42494d,
+            #aeb4b6,
+            #62696d
+    );
+    z-index: 4;
+}
+
+.dossier-photo {
+    display: block;
+    width: 100%;
+    height: 270px;
+    object-fit: cover;
+    object-position: center;
+    border: 1px solid #aaa69c;
+    filter: contrast(1.04) saturate(0.85);
+}
+
+/* HOVER EFFECT */
+
+.dossier-photo-container:hover {
+    transform: rotate(0deg) translateY(-5px);
+    box-shadow:
+            0 14px 25px rgba(0, 0, 0, 0.55),
+            0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+    .dossier-photo-container {
+        width: 190px;
+        margin: 25px auto;
+    }
+
+    .dossier-photo {
+        height: 230px;
+    }
+}
+
+/* =========================================
+   ANOMALOUS INTRUSION PROTOCOL
+========================================= */
+
+
+/* SCP-007 // INTRUSION OVERLAY */
+
+.intrusion-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(3px);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.intrusion-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.intrusion-window {
+    width: 100%;
+    max-width: 540px;
+    padding: 25px;
+
+    background: #111519;
+    border: 1px solid #793b3b;
+    box-shadow: 0 0 35px rgba(150, 25, 25, 0.2);
+
+    transform: translateY(12px);
+    transition: transform 0.35s ease;
+}
+
+.intrusion-overlay.active .intrusion-window {
+    transform: translateY(0);
+}
+
+/* SYSTEM INTERFERENCE */
+
+body.system-interference {
+    animation: systemGlitch 0.25s steps(2) 4;
+}
+
+@keyframes systemGlitch {
+    0% {
+        transform: translate(0, 0);
+        filter: none;
+    }
+
+    25% {
+        transform: translate(-3px, 1px);
+        filter: contrast(1.5) hue-rotate(25deg);
+    }
+
+    50% {
+        transform: translate(3px, -1px);
+        filter: invert(0.15);
+    }
+
+    75% {
+        transform: translate(-2px, 0);
+        filter: contrast(1.8);
+    }
+
+    100% {
+        transform: translate(0, 0);
+        filter: none;
+    }
+}
+
+
+.intrusion-topbar {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+
+    padding-bottom: 12px;
+    border-bottom: 1px solid #383d42;
+
+    color: #aeb4ba;
+    font-family: "Courier New", monospace;
+    font-size: 0.68rem;
+    letter-spacing: 1px;
+}
+
+.intrusion-warning {
+    color: #c65b5b;
+    animation: intrusionBlink 1.4s infinite;
+}
+
+.intrusion-content {
+    padding: 35px 5px;
+    text-align: center;
+}
+
+.intrusion-label {
+    color: #a34b4b;
+    font-family: "Courier New", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+}
+
+.intrusion-content h2 {
+    margin: 22px 0;
+    color: #e3dede;
+    font-family: "Courier New", monospace;
+    font-size: clamp(1.1rem, 4vw, 1.65rem);
+    letter-spacing: 1px;
+    text-shadow: 0 0 12px rgba(180, 45, 45, 0.3);
+}
+
+.intrusion-content > p:last-child {
+    color: #8f989f;
+    font-size: 0.85rem;
+    line-height: 1.7;
+}
+
+.intrusion-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.intrusion-actions button {
+    padding: 12px 18px;
+    border: 1px solid #803e3e;
+    border-radius: 2px;
+    background: #632b2e;
+    color: #eee;
+    font-family: "Courier New", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.intrusion-actions button:hover {
+    background: #8a393d;
+    border-color: #b65b5b;
+}
+
+.intrusion-actions button:last-child {
+    background: transparent;
+    border-color: #515961;
+    color: #aeb4ba;
+}
+
+.intrusion-actions button:last-child:hover {
+    background: #292f34;
+}
+
+.intrusion-actions button:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
+#intrusionStatus {
+    min-height: 18px;
+    margin-top: 18px;
+    color: #9ba99e;
+    text-align: center;
+    font-family: "Courier New", monospace;
+    font-size: 0.72rem;
+}
+
+@keyframes intrusionBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+}
+
+/* SCREEN INTERFERENCE */
+
+body.system-interference::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 99998;
+    pointer-events: none;
+
+    background: repeating-linear-gradient(
+            to bottom,
+            transparent 0px,
+            transparent 3px,
+            rgba(180, 30, 30, 0.09) 4px
+    );
+
+    animation: systemGlitch 0.16s steps(2) 5;
+}
+
+@keyframes systemGlitch {
+    0% {
+        transform: translateX(0);
+        opacity: 0.2;
+    }
+    25% {
+        transform: translateX(-4px);
+        opacity: 0.8;
+    }
+    50% {
+        transform: translateX(3px);
+        opacity: 0.4;
+    }
+    75% {
+        transform: translateX(-2px);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 0.2;
+    }
+}
+
+@media (max-width: 600px) {
+    .intrusion-window {
+        padding: 18px;
+    }
+
+    .intrusion-topbar {
+        flex-direction: column;
+    }
+}
+
+/* =========================================
+   SCP-007 // HAZIEL
+   ANOMALOUS SCREEN INTERFERENCE
+========================================= */
+
+.intrusion-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(3px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.intrusion-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.intrusion-window {
+    width: min(520px, 100%);
+    padding: 22px;
+    background: #101216;
+    border: 1px solid #873b3b;
+    box-shadow: 0 0 35px rgba(150, 35, 35, 0.25);
+    font-family: "Courier New", monospace;
+    animation: intrusionAppear 0.3s ease;
+}
+
+.intrusion-topbar {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #393137;
+    color: #aaa;
+    font-size: 0.68rem;
+    letter-spacing: 1px;
+}
+
+.intrusion-warning {
+    color: #c75b5b;
+    animation: intrusionBlink 1s infinite;
+}
+
+.intrusion-content {
+    padding: 35px 5px;
+    text-align: center;
+}
+
+.intrusion-label {
+    color: #a04d4d;
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+}
+
+#intrusionMessage {
+    margin: 25px 0;
+    color: #e5dddd;
+    font-size: clamp(1.2rem, 4vw, 1.8rem);
+    letter-spacing: 2px;
+    overflow-wrap: anywhere;
+    text-shadow: 0 0 12px rgba(180, 40, 40, 0.4);
+}
+
+#intrusionDetail {
+    color: #858b91;
+    font-size: 0.78rem;
+    line-height: 1.7;
+}
+
+.intrusion-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.intrusion-actions button {
+    padding: 11px 17px;
+    background: #252a30;
+    border: 1px solid #555d65;
+    color: #ddd;
+    font-family: inherit;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+.intrusion-actions button:first-child {
+    background: #682e32;
+    border-color: #a14c4c;
+}
+
+.intrusion-actions button:hover {
+    filter: brightness(1.3);
+}
+
+#intrusionStatus {
+    min-height: 18px;
+    margin-top: 18px;
+    color: #a7b99f;
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+.system-interference {
+    animation: systemGlitch 0.16s steps(2, end) 5;
+}
+
+@keyframes intrusionAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes intrusionBlink {
+    50% {
+        opacity: 0.3;
+    }
+}
+
+@keyframes systemGlitch {
+    0% {
+        transform: translateX(0);
+        filter: none;
+    }
+    25% {
+        transform: translateX(-2px);
+        filter: contrast(1.4);
+    }
+    50% {
+        transform: translateX(2px);
+        filter: brightness(1.25);
+    }
+    75% {
+        transform: translateX(-1px);
+        filter: contrast(1.2);
+    }
+    100% {
+        transform: translateX(0);
+        filter: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .intrusion-window {
+        padding: 16px;
+    }
+
+    .intrusion-topbar {
+        font-size: 0.58rem;
+    }
+}
+
+/* ==================================================
+   SCP-007 // HAZIEL IMMEDIATE SYSTEM BREACH
+================================================== */
+
+body.haziel-overload {
+    animation: haziel-screen-breach 0.16s steps(2, end) 5;
+}
+
+body.haziel-overload::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 99998;
+    pointer-events: none;
+
+    background:
+            repeating-linear-gradient(
+                    to bottom,
+                    transparent 0px,
+                    rgba(255, 255, 255, 0.12) 1px,
+                    transparent 3px,
+                    transparent 5px
+            );
+
+    mix-blend-mode: screen;
+    animation: haziel-scan-interference 0.12s steps(2, end) infinite;
+}
+
+body.haziel-overload::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 99997;
+    pointer-events: none;
+
+    background: rgba(180, 0, 0, 0.12);
+    mix-blend-mode: screen;
+
+    animation: haziel-red-flash 0.18s steps(2, end) 4;
+}
+
+body.haziel-overload .dashboard-main {
+    animation: haziel-content-corruption 0.14s steps(2, end) 6;
+}
+
+body.haziel-overload .dossier-page {
+    animation: haziel-dossier-distortion 0.2s steps(2, end) 5;
+}
+
+body.haziel-overload .dossier-page h1,
+body.haziel-overload .dossier-page h2,
+body.haziel-overload .dossier-page p {
+    text-shadow:
+            2px 0 rgba(255, 0, 0, 0.8),
+            -2px 0 rgba(0, 180, 255, 0.8);
+}
+
+@keyframes haziel-screen-breach {
+    0% {
+        transform: translate(0);
+        filter: none;
+    }
+
+    20% {
+        transform: translate(-7px, 2px);
+        filter: contrast(2) hue-rotate(90deg);
+    }
+
+    40% {
+        transform: translate(6px, -3px);
+        filter: invert(0.2);
+    }
+
+    60% {
+        transform: translate(-3px, 4px);
+        filter: contrast(2.5);
+    }
+
+    80% {
+        transform: translate(5px, -2px);
+        filter: hue-rotate(180deg);
+    }
+
+    100% {
+        transform: translate(0);
+        filter: none;
+    }
+}
+
+@keyframes haziel-scan-interference {
+    0% {
+        opacity: 0.1;
+        transform: translateY(-3px);
+    }
+
+    50% {
+        opacity: 0.9;
+        transform: translateY(3px);
+    }
+
+    100% {
+        opacity: 0.2;
+        transform: translateY(-1px);
+    }
+}
+
+@keyframes haziel-red-flash {
+    0%, 100% {
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 0.8;
+    }
+
+    60% {
+        opacity: 0.15;
+    }
+
+    80% {
+        opacity: 0.65;
+    }
+}
+
+@keyframes haziel-content-corruption {
+    0%, 100% {
+        transform: translateX(0);
+        filter: none;
+    }
+
+    25% {
+        transform: translateX(-8px);
+        filter: contrast(2);
+    }
+
+    50% {
+        transform: translateX(7px);
+        filter: hue-rotate(90deg);
+    }
+
+    75% {
+        transform: translateX(-4px);
+        filter: invert(0.15);
+    }
+}
+
+@keyframes haziel-dossier-distortion {
+    0%, 100% {
+        transform: skewX(0);
+        clip-path: inset(0);
+    }
+
+    20% {
+        transform: skewX(2deg) translateX(-5px);
+        clip-path: inset(15% 0 65% 0);
+    }
+
+    40% {
+        transform: skewX(-3deg) translateX(5px);
+        clip-path: inset(45% 0 30% 0);
+    }
+
+    60% {
+        transform: skewX(1deg) translateX(-3px);
+        clip-path: inset(70% 0 10% 0);
+    }
+
+    80% {
+        transform: skewX(-2deg) translateX(4px);
+        clip-path: inset(25% 0 50% 0);
+    }
+}
+
+/* ==================================================
+   SCP-007 // HAZIEL IMMEDIATE SYSTEM BREACH
+================================================== */
+
+body.haziel-breach {
+    animation: haziel-screen-breach 0.13s steps(2, end) 8;
+}
+
+body.haziel-breach::before,
+body.haziel-breach::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+
+body.haziel-breach::before {
+    z-index: 99997;
+    background:
+            repeating-linear-gradient(
+                    0deg,
+                    transparent 0px,
+                    rgba(255, 255, 255, 0.22) 1px,
+                    transparent 3px,
+                    transparent 5px
+            );
+    mix-blend-mode: screen;
+    animation: haziel-scan 0.09s steps(2, end) infinite;
+}
+
+body.haziel-breach::after {
+    z-index: 99998;
+    background: rgba(180, 0, 0, 0.18);
+    mix-blend-mode: screen;
+    animation: haziel-flash 0.16s steps(2, end) 8;
+}
+
+body.haziel-breach .dashboard-main {
+    animation: haziel-corruption 0.12s steps(2, end) 8;
+}
+
+body.haziel-breach .dossier-page {
+    animation: haziel-dossier-glitch 0.15s steps(2, end) 7;
+}
+
+body.haziel-breach .dossier-page h1,
+body.haziel-breach .dossier-page h2,
+body.haziel-breach .dossier-page p {
+    text-shadow:
+            3px 0 rgba(255, 0, 0, 0.9),
+            -3px 0 rgba(0, 180, 255, 0.9);
+}
+
+@keyframes haziel-screen-breach {
+    0%, 100% {
+        transform: translate(0);
+        filter: none;
+    }
+    20% {
+        transform: translate(-9px, 3px);
+        filter: contrast(2.5) hue-rotate(90deg);
+    }
+    40% {
+        transform: translate(8px, -5px);
+        filter: invert(0.25);
+    }
+    60% {
+        transform: translate(-5px, 6px);
+        filter: contrast(3);
+    }
+    80% {
+        transform: translate(7px, -3px);
+        filter: hue-rotate(180deg);
+    }
+}
+
+@keyframes haziel-scan {
+    0% {
+        opacity: 0.1;
+        transform: translateY(-5px);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(5px);
+    }
+    100% {
+        opacity: 0.2;
+        transform: translateY(-2px);
+    }
+}
+
+@keyframes haziel-flash {
+    0%, 100% { opacity: 0; }
+    25% { opacity: 0.9; }
+    50% { opacity: 0.1; }
+    75% { opacity: 0.75; }
+}
+
+@keyframes haziel-corruption {
+    0%, 100% {
+        transform: translateX(0);
+        filter: none;
+    }
+    25% {
+        transform: translateX(-10px);
+        filter: contrast(2.5);
+    }
+    50% {
+        transform: translateX(9px);
+        filter: hue-rotate(100deg);
+    }
+    75% {
+        transform: translateX(-6px);
+        filter: invert(0.2);
+    }
+}
+
+@keyframes haziel-dossier-glitch {
+    0%, 100% {
+        transform: skewX(0);
+        clip-path: inset(0);
+    }
+    20% {
+        transform: skewX(3deg) translateX(-8px);
+        clip-path: inset(15% 0 65% 0);
+    }
+    40% {
+        transform: skewX(-4deg) translateX(7px);
+        clip-path: inset(45% 0 30% 0);
+    }
+    60% {
+        transform: skewX(2deg) translateX(-5px);
+        clip-path: inset(70% 0 10% 0);
+    }
+    80% {
+        transform: skewX(-3deg) translateX(6px);
+        clip-path: inset(25% 0 50% 0);
+    }
+}
