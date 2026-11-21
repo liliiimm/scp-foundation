@@ -19,6 +19,8 @@ const characters = [
         role: "Research Scientist",
         type: "scientist",
         clearance: 3,
+        height: "1.90 m",
+        zodiac: "Taurus",
         department: "Scientific Department",
         designation: "PERSONNEL",
         classification: "Foundation Personnel",
@@ -26,15 +28,17 @@ const characters = [
     },
 
     {
-        name: "Christopher Theodoru",
+        name: "Christóforos Theodoru",
         aliases: ["Chris"],
         role: "Research Scientist",
         type: "scientist",
         clearance: 3,
+        height: "1.77 m",
+        zodiac: "Capricorn",
         department: "Scientific Department",
         designation: "PERSONNEL",
         classification: "Foundation Personnel",
-        photo: "assets/personnel/christopher-theodoru.jpg"
+        photo: "assets/personnel/Christóforos-theodoru.jpg"
     },
 
     {
@@ -43,6 +47,8 @@ const characters = [
         role: "Research Scientist",
         type: "scientist",
         clearance: 3,
+        height: "1.60 m",
+        zodiac: "Aries",
         department: "Scientific Department",
         designation: "PERSONNEL",
         classification: "Foundation Personnel",
@@ -55,6 +61,8 @@ const characters = [
         role: "Elite Research Scientist",
         type: "eliteScientist",
         clearance: 3,
+        height: "1.95 m",
+        zodiac: "Virgo",
         department: "Elite Scientific Department",
         designation: "PERSONNEL",
         classification: "Foundation Personnel",
@@ -67,6 +75,8 @@ const characters = [
         role: "Research Scientist",
         type: "scientist",
         clearance: 3,
+        height: "1.69 m",
+        zodiac: "Scorpio",
         department: "Scientific Department",
         designation: "PERSONNEL",
         classification: "Foundation Personnel",
@@ -82,6 +92,8 @@ const characters = [
         role: "Security Captain",
         type: "captain",
         clearance: 3,
+        height: "1.72 m",
+        zodiac: "Sagittarius",
         department: "Security and Containment",
         designation: "PERSONNEL",
         classification: "Foundation Personnel",
@@ -94,6 +106,8 @@ const characters = [
         role: "Security Officer",
         type: "security",
         clearance: 2,
+        height: "1.73 m",
+        zodiac: "Gemini",
         department: "Security and Containment",
         designation: "PERSONNEL",
         classification: "Foundation Personnel",
@@ -109,6 +123,8 @@ const characters = [
         role: "Forensic Scientist",
         type: "forensic",
         clearance: 2,
+        height: "1.62 m",
+        zodiac: "Gemini",
         department: "Forensic Team",
         designation: "PERSONNEL",
         classification: "Foundation Personnel",
@@ -255,19 +271,36 @@ const permissions = {
 };
 
 
-
-
 /* =========================================
-   3. PAGE ELEMENTS
+   3. PAGE ELEMENTS AND STATE
 ========================================= */
 
 const accessForm = document.getElementById("accessForm");
 const characterInput = document.getElementById("characterName");
 const accessPanel = document.querySelector(".access-panel");
 
+let activeHazielDossier = false;
+
 
 /* =========================================
-   4. FIND REGISTERED CHARACTER
+   4. HTML SECURITY HELPER
+========================================= */
+
+function safeText(value) {
+
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[character]);
+
+}
+
+
+/* =========================================
+   5. FIND REGISTERED CHARACTER
 ========================================= */
 
 function findCharacter(inputName) {
@@ -291,82 +324,113 @@ function findCharacter(inputName) {
 
 
 /* =========================================
-   5. IDENTIFICATION SYSTEM
+   6. IDENTIFICATION SYSTEM
 ========================================= */
 
-accessForm.addEventListener("submit", function(event) {
+if (accessForm) {
 
-    event.preventDefault();
+    accessForm.addEventListener("submit", function(event) {
 
-    const enteredName = characterInput.value.trim();
-    const character = findCharacter(enteredName);
+        event.preventDefault();
 
-    if (!character) {
+        const enteredName = characterInput.value.trim();
+        const character = findCharacter(enteredName);
 
         const message = document.getElementById("accessMessage");
 
-        message.textContent =
-            "ACCESS DENIED — IDENTITY NOT FOUND.";
+        if (!character) {
 
-        message.className = "message denied";
+            if (message) {
+                message.textContent =
+                    "ACCESS DENIED — IDENTITY NOT FOUND.";
 
-        accessPanel.classList.remove("granted-animation");
-        accessPanel.classList.remove("denied-animation");
-
-        void accessPanel.offsetWidth;
-
-        accessPanel.classList.add("denied-animation");
-
-        return;
-    }
-
-    accessPanel.classList.remove("denied-animation");
-    accessPanel.classList.remove("granted-animation");
-
-    void accessPanel.offsetWidth;
-
-    accessPanel.classList.add("granted-animation");
-
-    setTimeout(async () => {
-
-        const { data: sessionData } =
-            await window.supabaseClient.auth.getSession();
-
-        if (!sessionData.session) {
-            const { error } =
-                await window.supabaseClient.auth.signInAnonymously();
-
-            if (error) {
-                console.error("AUTHENTICATION ERROR:", error);
-
-                const message = document.getElementById("accessMessage");
-                message.textContent = "CONNECTION ERROR — PLEASE TRY AGAIN.";
                 message.className = "message denied";
-                return;
             }
+
+            if (accessPanel) {
+                accessPanel.classList.remove("granted-animation");
+                accessPanel.classList.remove("denied-animation");
+
+                void accessPanel.offsetWidth;
+
+                accessPanel.classList.add("denied-animation");
+            }
+
+            return;
         }
 
-        console.log("SCP FOUNDATION // PERSONNEL SESSION ACTIVE");
+        if (accessPanel) {
+            accessPanel.classList.remove("denied-animation");
+            accessPanel.classList.remove("granted-animation");
 
-        grantAccess(character);
+            void accessPanel.offsetWidth;
 
-    }, 700);
-});
+            accessPanel.classList.add("granted-animation");
+        }
 
+        setTimeout(async () => {
 
-/* =========================================
-   6. HTML SECURITY HELPER
-========================================= */
+            if (!window.supabaseClient) {
+                console.error("SUPABASE CLIENT NOT FOUND.");
 
-function safeText(value) {
+                if (message) {
+                    message.textContent =
+                        "CONNECTION ERROR — PLEASE TRY AGAIN.";
 
-    return String(value ?? "").replace(/[&<>"']/g, character => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;"
-    })[character]);
+                    message.className = "message denied";
+                }
+
+                return;
+            }
+
+            const { data: sessionData, error: sessionError } =
+                await window.supabaseClient.auth.getSession();
+
+            if (sessionError) {
+                console.error("SESSION ERROR:", sessionError);
+
+                if (message) {
+                    message.textContent =
+                        "CONNECTION ERROR — PLEASE TRY AGAIN.";
+
+                    message.className = "message denied";
+                }
+
+                return;
+            }
+
+            if (!sessionData.session) {
+
+                const { error } =
+                    await window.supabaseClient.auth.signInAnonymously();
+
+                if (error) {
+                    console.error("AUTHENTICATION ERROR:", error);
+
+                    if (message) {
+                        message.textContent =
+                            "CONNECTION ERROR — PLEASE TRY AGAIN.";
+
+                        message.className = "message denied";
+                    }
+
+                    return;
+                }
+            }
+
+            console.log("SCP FOUNDATION // PERSONNEL SESSION ACTIVE");
+
+            // HAZIEL // INTRUSION PROTOCOL
+
+            if (window.SCPIntrusion) {
+                window.SCPIntrusion.setCharacter(character);
+            }
+
+            grantAccess(character);
+
+        }, 700);
+
+    });
 
 }
 
@@ -376,25 +440,29 @@ function safeText(value) {
 ========================================= */
 
 async function grantAccess(character) {
-    // SCP FOUNDATION // REGISTER PERSONNEL SESSION
 
     const supabase = window.supabaseClient;
+
+    if (!supabase) {
+        console.error("SUPABASE CLIENT NOT FOUND.");
+        return;
+    }
 
     let { data: sessionData, error: sessionError } =
         await supabase.auth.getSession();
 
     if (sessionError) {
         console.error("SESSION ERROR:", sessionError);
-        alert("SESSION INITIALIZATION FAILED.");
         return;
     }
 
     if (!sessionData.session) {
-        const { data, error } = await supabase.auth.signInAnonymously();
+
+        const { data, error } =
+            await supabase.auth.signInAnonymously();
 
         if (error || !data.session) {
             console.error("ANONYMOUS LOGIN ERROR:", error);
-            alert("ANONYMOUS LOGIN FAILED.");
             return;
         }
 
@@ -409,7 +477,7 @@ async function grantAccess(character) {
         .replace(/\s+/g, "_");
 
     const { error: registrationError } =
-        await window.supabaseClient
+        await supabase
             .from("character_sessions")
             .upsert({
                 character_key: characterKey,
@@ -425,13 +493,6 @@ async function grantAccess(character) {
     }
 
     const availableModules = permissions[character.type] || [];
-
-    const initials = character.name
-        .split(" ")
-        .map(part => part[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase();
 
     accessPanel.classList.remove("denied-animation");
 
@@ -504,9 +565,10 @@ async function grantAccess(character) {
 
     `;
 
-    /* =========================================
+
+    /* =====================================
        PERSONALIZED WELCOME ANIMATION
-    ========================================= */
+    ===================================== */
 
     const isScientist =
         character.type === "scientist" ||
@@ -526,16 +588,16 @@ async function grantAccess(character) {
     welcomeText.className = "welcome-animation-content";
 
     welcomeText.innerHTML = `
-    <p class="welcome-system-label">
-        SCP FOUNDATION // IDENTITY VERIFIED
-    </p>
+        <p class="welcome-system-label">
+            SCP FOUNDATION // IDENTITY VERIFIED
+        </p>
 
-    <h1 class="welcome-animation-title"></h1>
+        <h1 class="welcome-animation-title"></h1>
 
-    <p class="welcome-system-status">
-        ACCESS GRANTED
-    </p>
-`;
+        <p class="welcome-system-status">
+            ACCESS GRANTED
+        </p>
+    `;
 
     welcomeText.querySelector(".welcome-animation-title").textContent =
         "WELCOME, " + displayName;
@@ -545,6 +607,7 @@ async function grantAccess(character) {
     document.body.appendChild(welcomeOverlay);
 
     setTimeout(() => {
+
         welcomeOverlay.classList.add("welcome-exit");
 
         setTimeout(() => {
@@ -555,7 +618,7 @@ async function grantAccess(character) {
 
 
     /* =====================================
-       CHARACTER PHOTO
+       CHARACTER PHOTO AND PROFILE
     ===================================== */
 
     const sidebarBrand = document.querySelector(".sidebar-brand");
@@ -586,11 +649,13 @@ async function grantAccess(character) {
         userBox.prepend(userPhoto);
     }
 
-    sidebarBrand.after(userBox);
+    if (sidebarBrand) {
+        sidebarBrand.after(userBox);
+    }
 
 
     /* =====================================
-       NAVIGATION MODULES
+       NAVIGATION MODULE INFORMATION
     ===================================== */
 
     const moduleInformation = {
@@ -673,6 +738,10 @@ async function grantAccess(character) {
     };
 
 
+    /* =====================================
+       NAVIGATION MODULES
+    ===================================== */
+
     const navigation = document.getElementById("dashboardNavigation");
 
     const modules = [
@@ -720,11 +789,23 @@ async function grantAccess(character) {
 
     logout.className = "logout-button";
     logout.textContent = "TERMINATE SESSION";
+    logout.type = "button";
 
     navigation.after(logout);
 
     logout.addEventListener("click", () => {
+
+        activeHazielDossier = false;
+
+        document.body.classList.remove("haziel-breach");
+        document.body.classList.remove("haziel-overload");
+
+        if (window.SCPIntrusion) {
+            window.SCPIntrusion.onHazielFileClosed();
+        }
+
         location.reload();
+
     });
 
 
@@ -743,7 +824,6 @@ async function grantAccess(character) {
 }
 
 
-
 /* =========================================
    8. CHARACTER DOSSIERS
 ========================================= */
@@ -756,6 +836,8 @@ function renderCharacterDossier(target, currentCharacter) {
     if (!content || !target) return;
 
     const isSubject = target.type === "subject";
+    const isOwner = currentCharacter?.name === target.name;
+    const isHaziel = target.name === "Haziel Mirren";
 
     const dossierTitle = isSubject
         ? "ANOMALOUS SUBJECT DOSSIER"
@@ -765,78 +847,311 @@ function renderCharacterDossier(target, currentCharacter) {
         pageTitle.textContent = dossierTitle;
     }
 
-    content.innerHTML = `
-        <div class="dossier-page">
+    const renderDossier = (profile = {}) => {
 
-            <button class="back-button" id="backToDirectory">
-                ← RETURN TO DIRECTORY
-            </button>
+        content.innerHTML = `
 
-            <div class="dossier-header">
-                <div>
-                    <p class="dossier-classification">
-                        FOUNDATION DATABASE // CLASSIFIED
-                    </p>
+            <div class="dossier-page">
 
-                    <h1>${safeText(dossierTitle)}</h1>
+                <button class="back-button" id="backToDirectory">
+                    ← RETURN TO DIRECTORY
+                </button>
 
-                    <p class="dossier-reference">
-                        ${safeText(target.designation)}
-                    </p>
-                </div>
+                <div class="dossier-header">
 
-                <span class="dossier-stamp">
-                    ${isSubject ? "CONTAINMENT" : "PERSONNEL"}
-                </span>
-            </div>
+                    <div>
+                        <p class="dossier-classification">
+                            FOUNDATION DATABASE // CLASSIFIED
+                        </p>
 
-            <div class="dossier-profile">
+                        <h1>${safeText(dossierTitle)}</h1>
 
-                <div class="dossier-photo-container">
-                    <img
-                        class="dossier-photo"
-                        src="${safeText(target.photo)}"
-                        alt="${safeText(target.name)}"
-                        onerror="this.style.display='none'"
-                    >
-                </div>
+                        <p class="dossier-reference">
+                            ${safeText(target.designation)}
+                        </p>
+                    </div>
 
-                <div class="dossier-identity">
-
-                    <h2>${safeText(target.name)}</h2>
-
-                    <p><strong>ROLE:</strong> ${safeText(target.role)}</p>
-                    <p><strong>DEPARTMENT:</strong> ${safeText(target.department)}</p>
-                    <p><strong>CLEARANCE:</strong> LEVEL ${safeText(target.clearance)}</p>
-                    <p><strong>CLASSIFICATION:</strong> ${safeText(target.classification)}</p>
+                    <span class="dossier-stamp">
+                        ${isSubject ? "CONTAINMENT" : "PERSONNEL"}
+                    </span>
 
                 </div>
+
+
+                <div class="dossier-profile">
+
+                    <div class="dossier-photo-container">
+
+                        <img
+                            class="dossier-photo"
+                            src="${safeText(target.photo)}"
+                            alt="${safeText(target.name)}"
+                            onerror="this.style.display='none'"
+                        >
+
+                    </div>
+
+                    <div class="dossier-identity">
+
+                        <h2>${safeText(target.name)}</h2>
+
+                        <p><strong>ROLE:</strong> ${safeText(target.role)}</p>
+
+                        <p><strong>DEPARTMENT:</strong> ${safeText(target.department)}</p>
+
+                        <p><strong>CLEARANCE:</strong> LEVEL ${safeText(target.clearance)}</p>
+
+                        <p><strong>CLASSIFICATION:</strong> ${safeText(target.classification)}</p>
+
+                        ${!isSubject ? `
+                            <p><strong>HEIGHT:</strong> ${safeText(target.height || "NOT REGISTERED")}</p>
+                            <p><strong>ZODIAC SIGN:</strong> ${safeText(target.zodiac || "NOT REGISTERED")}</p>
+                        ` : ""}
+
+                    </div>
+
+                </div>
+
+
+                ${!isSubject ? `
+
+                    <div class="dossier-section">
+                        <h3>GENERAL INFORMATION</h3>
+                        <p>${safeText(profile.biography || "No biography registered.")}</p>
+                    </div>
+
+                    <div class="dossier-section">
+                        <h3>PERSONAL INFORMATION</h3>
+                        <p>${safeText(profile.personal || "No personal information registered.")}</p>
+                    </div>
+
+                    <div class="dossier-section">
+                        <h3>ADDITIONAL NOTES</h3>
+                        <p>${safeText(profile.additional || "No additional notes registered.")}</p>
+                    </div>
+
+
+                    ${isOwner ? `
+
+                        <div class="dossier-section profile-editor">
+
+                            <h3>EDIT PERSONNEL FILE</h3>
+
+                            <label for="editBiography">BIOGRAPHY</label>
+                            <textarea id="editBiography" rows="5">${safeText(profile.biography || "")}</textarea>
+
+                            <label for="editPersonal">PERSONAL INFORMATION</label>
+                            <textarea id="editPersonal" rows="5">${safeText(profile.personal || "")}</textarea>
+
+                            <label for="editAdditional">ADDITIONAL NOTES</label>
+                            <textarea id="editAdditional" rows="5">${safeText(profile.additional || "")}</textarea>
+
+                            <button class="back-button" id="savePersonnelProfile">
+                                SAVE CHANGES
+                            </button>
+
+                            <p id="profileSaveStatus"></p>
+
+                        </div>
+
+                    ` : ""}
+
+                ` : `
+
+                    <div class="dossier-section">
+                        <h3>GENERAL INFORMATION</h3>
+                        <p>No additional information has been registered.</p>
+                    </div>
+
+                    <div class="dossier-section">
+                        <h3>OBSERVATIONS</h3>
+                        <p>Further documentation pending.</p>
+                    </div>
+
+                `}
+
+
+                <div class="dossier-footer">
+                    SCP FOUNDATION // AUTHORIZED ACCESS ONLY
+                </div>
+
             </div>
 
-            <div class="dossier-section">
-                <h3>GENERAL INFORMATION</h3>
-                <p>No additional information has been registered.</p>
-            </div>
+        `;
 
-            <div class="dossier-section">
-                <h3>OBSERVATIONS</h3>
-                <p>Further documentation pending.</p>
-            </div>
 
-            <div class="dossier-footer">
-                SCP FOUNDATION // AUTHORIZED ACCESS ONLY
-            </div>
+        /* =====================================
+           BACK TO DIRECTORY
+        ===================================== */
 
-        </div>
-    `;
+        const backButton = document.getElementById("backToDirectory");
 
-    document.getElementById("backToDirectory")
-        .addEventListener("click", function() {
+        if (backButton) {
 
-            renderModule(
-                isSubject ? "Anomaly Database" : "Personnel Directory",
-                currentCharacter
-            );
+            backButton.addEventListener("click", function() {
+
+                if (isHaziel) {
+                    activeHazielDossier = false;
+
+                    document.body.classList.remove("haziel-breach");
+                    document.body.classList.remove("haziel-overload");
+
+                    if (
+                        window.SCPIntrusion &&
+                        typeof window.SCPIntrusion.onHazielFileClosed === "function"
+                    ) {
+                        window.SCPIntrusion.onHazielFileClosed();
+                    }
+                }
+
+                renderModule(
+                    isSubject ? "Anomaly Database" : "Personnel Directory",
+                    currentCharacter
+                );
+
+            });
+
+        }
+
+
+        /* =====================================
+           SAVE PERSONNEL PROFILE
+        ===================================== */
+
+        const saveButton = document.getElementById("savePersonnelProfile");
+
+        if (saveButton) {
+
+            saveButton.addEventListener("click", async function() {
+
+                const status = document.getElementById("profileSaveStatus");
+
+                if (status) {
+                    status.textContent = "SAVING...";
+                }
+
+                const updatedProfile = {
+
+                    biography: document.getElementById("editBiography").value,
+
+                    personal: document.getElementById("editPersonal").value,
+
+                    additional: document.getElementById("editAdditional").value,
+
+                    updated_at: new Date().toISOString()
+
+                };
+
+                const { error } = await window.supabaseClient
+                    .from("personnel_profiles")
+                    .update(updatedProfile)
+                    .eq("character_name", target.name);
+
+                if (error) {
+
+                    console.error("PROFILE SAVE ERROR:", error);
+
+                    if (status) {
+                        status.textContent =
+                            "ERROR: CHANGES COULD NOT BE SAVED.";
+                    }
+
+                    return;
+                }
+
+                if (status) {
+                    status.textContent =
+                        "PROFILE UPDATED SUCCESSFULLY.";
+                }
+
+                profile.biography = updatedProfile.biography;
+                profile.personal = updatedProfile.personal;
+                profile.additional = updatedProfile.additional;
+
+            });
+
+        }
+
+
+        /* =====================================
+           SCP-007 // IMMEDIATE SYSTEM BREACH
+        ===================================== */
+
+        if (isHaziel && !activeHazielDossier) {
+
+            activeHazielDossier = true;
+
+            // Reinicia la animación si se vuelve a abrir el expediente
+            document.body.classList.remove("haziel-breach");
+
+            void document.body.offsetWidth;
+
+            // Interferencia visual inmediata
+            document.body.classList.add("haziel-breach");
+
+            // El impacto inicial dura aproximadamente 1,5 segundos
+            setTimeout(() => {
+                document.body.classList.remove("haziel-breach");
+            }, 1500);
+
+            // Activa mensajes y eventos de intrusión
+            if (
+                window.SCPIntrusion &&
+                typeof window.SCPIntrusion.onHazielFileOpened === "function"
+            ) {
+                window.SCPIntrusion.onHazielFileOpened(currentCharacter);
+            }
+
+        }
+
+
+    };
+
+
+    /* =====================================
+       SUBJECT DOSSIERS
+    ===================================== */
+
+    if (isSubject) {
+
+        renderDossier();
+
+        return;
+    }
+
+
+    /* =====================================
+       PERSONNEL PROFILE DATABASE
+    ===================================== */
+
+    if (!window.supabaseClient) {
+
+        content.innerHTML = "<p>DATABASE CONNECTION ERROR.</p>";
+
+        return;
+    }
+
+    content.innerHTML = "<p>LOADING PERSONNEL FILE...</p>";
+
+    window.supabaseClient
+        .from("personnel_profiles")
+        .select("biography, personal, additional")
+        .eq("character_name", target.name)
+        .maybeSingle()
+
+        .then(({ data, error }) => {
+
+            if (error) {
+
+                console.error("PROFILE LOAD ERROR:", error);
+
+                content.innerHTML =
+                    "<p>ERROR LOADING PERSONNEL FILE.</p>";
+
+                return;
+            }
+
+            renderDossier(data || {});
 
         });
 
@@ -857,54 +1172,103 @@ function renderModule(module, character) {
         return;
     }
 
+
+    /* =====================================
+       CLOSE HAZIEL DOSSIER IF NECESSARY
+    ===================================== */
+
+    if (activeHazielDossier) {
+
+        activeHazielDossier = false;
+
+        document.body.classList.remove("haziel-breach");
+        document.body.classList.remove("haziel-overload");
+
+        if (
+            window.SCPIntrusion &&
+            typeof window.SCPIntrusion.onHazielFileClosed === "function"
+        ) {
+            window.SCPIntrusion.onHazielFileClosed();
+        }
+
+    }
+
+
     const availableModules = permissions[character.type] || [];
 
-    /* ACCESS CHECK */
+
+    /* =====================================
+       ACCESS CHECK
+    ===================================== */
 
     if (module !== "Overview" && !availableModules.includes(module)) {
 
         content.innerHTML = `
+
             <div class="restricted-notice">
+
                 <h1>ACCESS RESTRICTED</h1>
-                <p>Your current clearance does not authorize this section.</p>
+
+                <p>
+                    Your current clearance does not authorize this section.
+                </p>
+
             </div>
+
         `;
 
         return;
     }
-    /* ANOMALY DATABASE */
 
-    if (module === "Anomaly Database") {
-        pageTitle.textContent = "ANOMALY DATABASE";
-        window.renderAnomalyDatabase(content, character);
-        return;
-    }
-    /* PAGE TITLE */
+
+    /* =====================================
+       PAGE TITLES
+    ===================================== */
 
     const titles = {
+
         "Overview": "SYSTEM OVERVIEW",
+
         "Anomaly Database": "ANOMALY DATABASE",
+
         "Personnel Directory": "PERSONNEL DIRECTORY",
+
         "Research Archives": "RESEARCH ARCHIVES",
+
         "Experiment Records": "EXPERIMENT RECORDS",
+
         "Incident Reports": "INCIDENT REPORTS",
+
         "Communications": "COMMUNICATIONS",
+
         "Document Archive": "DOCUMENT ARCHIVE",
+
         "Restricted Research Archives": "RESTRICTED RESEARCH ARCHIVES",
+
         "Containment Records": "CONTAINMENT RECORDS",
+
         "Security Records": "SECURITY RECORDS",
+
         "Security Operations": "SECURITY OPERATIONS",
+
         "Forensic Archives": "FORENSIC ARCHIVES",
+
         "Evidence Records": "EVIDENCE RECORDS",
+
         "Personal File": "PERSONAL FILE",
+
         "Anomaly Dossiers": "ANOMALY DOSSIERS"
+
     };
 
     if (pageTitle) {
         pageTitle.textContent = titles[module] || module.toUpperCase();
     }
 
-    /* MODULE ENTRY INTERFERENCE */
+
+    /* =====================================
+       MODULE ENTRY INTERFERENCE
+    ===================================== */
 
     content.classList.remove("module-interference");
 
@@ -913,7 +1277,9 @@ function renderModule(module, character) {
     content.classList.add("module-interference");
 
     content.addEventListener("animationend", function() {
+
         content.classList.remove("module-interference");
+
     }, { once: true });
 
 
@@ -928,6 +1294,7 @@ function renderModule(module, character) {
             <div class="welcome-banner">
 
                 <div>
+
                     <span class="eyebrow">
                         AUTHORIZED ACCESS CONFIRMED
                     </span>
@@ -940,43 +1307,73 @@ function renderModule(module, character) {
                         Foundation systems are operational.
                         Your session has been initialized.
                     </p>
+
                 </div>
 
                 <div class="welcome-classification">
+
                     <span>SECURITY CLEARANCE</span>
-                    <strong>LEVEL ${safeText(character.clearance)}</strong>
+
+                    <strong>
+                        LEVEL ${safeText(character.clearance)}
+                    </strong>
+
                 </div>
 
             </div>
+
 
             <div class="stats-grid">
 
                 <article class="stat-card">
+
                     <span>REGISTERED PERSONNEL</span>
-                    <strong>${characters.filter(person => person.type !== "subject").length}</strong>
+
+                    <strong>
+                        ${characters.filter(person => person.type !== "subject").length}
+                    </strong>
+
                     <small>FOUNDATION DATABASE</small>
+
                 </article>
 
+
                 <article class="stat-card">
+
                     <span>REGISTERED ANOMALIES</span>
-                    <strong>${characters.filter(person => person.type === "subject").length}</strong>
+
+                    <strong>
+                        ${characters.filter(person => person.type === "subject").length}
+                    </strong>
+
                     <small>ANOMALY DATABASE</small>
+
                 </article>
 
+
                 <article class="stat-card">
+
                     <span>YOUR CLEARANCE</span>
+
                     <strong>${safeText(character.clearance)}</strong>
+
                     <small>AUTHORIZED LEVEL</small>
+
                 </article>
 
             </div>
 
+
             <div class="dashboard-section">
 
                 <div class="section-heading">
+
                     <h2>PERSONNEL INFORMATION</h2>
+
                     <span>IDENTITY RECORD</span>
+
                 </div>
+
 
                 <div class="information-panel">
 
@@ -1004,20 +1401,32 @@ function renderModule(module, character) {
 
             </div>
 
+
             <div class="dashboard-section">
 
                 <div class="section-heading">
+
                     <h2>AUTHORIZED MODULES</h2>
-                    <span>${availableModules.length} MODULES AVAILABLE</span>
+
+                    <span>
+                        ${availableModules.length} MODULES AVAILABLE
+                    </span>
+
                 </div>
+
 
                 <div class="overview-modules">
 
                     ${availableModules.map(item => `
+
                         <div class="overview-module">
+
                             <span>▣</span>
+
                             ${safeText(item)}
+
                         </div>
+
                     `).join("")}
 
                 </div>
@@ -1031,15 +1440,111 @@ function renderModule(module, character) {
 
 
     /* =====================================
+       ANOMALY DATABASE
+    ===================================== */
+
+    if (module === "Anomaly Database") {
+
+        if (typeof window.renderAnomalyDatabase === "function") {
+
+            window.renderAnomalyDatabase(content, character);
+
+        } else {
+
+            const anomalies = characters.filter(person =>
+                person.type === "subject"
+            );
+
+            content.innerHTML = `
+
+                <div class="module-intro">
+
+                    <h2>ANOMALOUS SUBJECT REGISTRY</h2>
+
+                    <p>
+                        Classified records of contained anomalous entities.
+                    </p>
+
+                </div>
+
+
+                <div class="character-grid">
+
+                    ${anomalies.map(person => `
+
+                        <button
+                            class="character-card anomaly-card dossier-card"
+                            data-character="${safeText(person.name)}"
+                            type="button"
+                        >
+
+                            <img
+                                src="${safeText(person.photo)}"
+                                alt="${safeText(person.name)}"
+                                onerror="this.style.display='none'"
+                            >
+
+                            <div class="character-card-info">
+
+                                <span class="card-designation">
+                                    ${safeText(person.designation)}
+                                </span>
+
+                                <h3>${safeText(person.name)}</h3>
+
+                                <p>${safeText(person.classification)}</p>
+
+                            </div>
+
+                        </button>
+
+                    `).join("")}
+
+                </div>
+
+            `;
+
+            content.querySelectorAll(".dossier-card")
+                .forEach(card => {
+
+                    card.addEventListener("click", function() {
+
+                        const selectedCharacter = characters.find(person =>
+                            person.name === this.dataset.character
+                        );
+
+                        if (selectedCharacter) {
+                            renderCharacterDossier(
+                                selectedCharacter,
+                                character
+                            );
+                        }
+
+                    });
+
+                });
+
+        }
+
+        return;
+    }
+
+
+    /* =====================================
        RESEARCH ARCHIVES
     ===================================== */
 
     if (module === "Research Archives") {
 
         if (typeof window.renderResearchArchives === "function") {
+
             window.renderResearchArchives(content, character);
+
         } else {
-            content.innerHTML = "<h2>Research Archives module not loaded.</h2>";
+
+            content.innerHTML =
+                "<h2>Research Archives module not loaded.</h2>";
+
         }
 
         return;
@@ -1053,9 +1558,14 @@ function renderModule(module, character) {
     if (module === "Anomaly Dossiers") {
 
         if (typeof window.renderAnomalyDossiers === "function") {
+
             window.renderAnomalyDossiers(content, character);
+
         } else {
-            content.innerHTML = "<h2>Anomaly Dossiers module not loaded.</h2>";
+
+            content.innerHTML =
+                "<h2>Anomaly Dossiers module not loaded.</h2>";
+
         }
 
         return;
@@ -1069,9 +1579,14 @@ function renderModule(module, character) {
     if (module === "Communications") {
 
         if (typeof window.renderFoundationCommunications === "function") {
+
             window.renderFoundationCommunications(content, character);
+
         } else {
-            content.innerHTML = "<h2>Communications module not loaded.</h2>";
+
+            content.innerHTML =
+                "<h2>Communications module not loaded.</h2>";
+
         }
 
         return;
@@ -1083,21 +1598,36 @@ function renderModule(module, character) {
     ===================================== */
 
     if ([
+
         "Experiment Records",
+
         "Incident Reports",
+
         "Document Archive",
+
         "Restricted Research Archives",
+
         "Containment Records",
+
         "Security Records",
+
         "Security Operations",
+
         "Forensic Archives",
+
         "Evidence Records"
+
     ].includes(module)) {
 
         if (typeof window.renderFoundationModule === "function") {
+
             window.renderFoundationModule(module, character, content);
+
         } else {
-            content.innerHTML = "<h2>Foundation module not loaded.</h2>";
+
+            content.innerHTML =
+                "<h2>Foundation module not loaded.</h2>";
+
         }
 
         return;
@@ -1117,9 +1647,15 @@ function renderModule(module, character) {
         content.innerHTML = `
 
             <div class="module-intro">
+
                 <h2>FOUNDATION PERSONNEL</h2>
-                <p>Registered members of the Foundation network.</p>
+
+                <p>
+                    Registered members of the Foundation network.
+                </p>
+
             </div>
+
 
             <div class="character-grid">
 
@@ -1157,94 +1693,28 @@ function renderModule(module, character) {
 
         `;
 
-        content.querySelectorAll(".dossier-card").forEach(card => {
 
-            card.addEventListener("click", function() {
+        content.querySelectorAll(".dossier-card")
+            .forEach(card => {
 
-                const selectedCharacter = characters.find(person =>
-                    person.name === this.dataset.character
-                );
+                card.addEventListener("click", function() {
 
-                if (selectedCharacter) {
-                    renderCharacterDossier(selectedCharacter, character);
-                }
+                    const selectedCharacter = characters.find(person =>
+                        person.name === this.dataset.character
+                    );
 
-            });
+                    if (selectedCharacter) {
 
-        });
+                        renderCharacterDossier(
+                            selectedCharacter,
+                            character
+                        );
 
-        return;
-    }
+                    }
 
-
-    /* =====================================
-       ANOMALY DATABASE
-    ===================================== */
-
-    if (module === "Anomaly Database") {
-
-        const anomalies = characters.filter(person =>
-            person.type === "subject"
-        );
-
-        content.innerHTML = `
-
-            <div class="module-intro">
-                <h2>ANOMALOUS SUBJECT REGISTRY</h2>
-                <p>Classified records of contained anomalous entities.</p>
-            </div>
-
-            <div class="character-grid">
-
-                ${anomalies.map(person => `
-
-                    <button
-                        class="character-card anomaly-card dossier-card"
-                        data-character="${safeText(person.name)}"
-                        type="button"
-                    >
-
-                        <img
-                            src="${safeText(person.photo)}"
-                            alt="${safeText(person.name)}"
-                            onerror="this.style.display='none'"
-                        >
-
-                        <div class="character-card-info">
-
-                            <span class="card-designation">
-                                ${safeText(person.designation)}
-                            </span>
-
-                            <h3>${safeText(person.name)}</h3>
-
-                            <p>${safeText(person.classification)}</p>
-
-                        </div>
-
-                    </button>
-
-                `).join("")}
-
-            </div>
-
-        `;
-
-        content.querySelectorAll(".dossier-card").forEach(card => {
-
-            card.addEventListener("click", function() {
-
-                const selectedCharacter = characters.find(person =>
-                    person.name === this.dataset.character
-                );
-
-                if (selectedCharacter) {
-                    renderCharacterDossier(selectedCharacter, character);
-                }
+                });
 
             });
-
-        });
 
         return;
     }
@@ -1289,6 +1759,7 @@ function renderModule(module, character) {
 
 }
 
+
 /* =====================================================
    SCP FOUNDATION // FILE INTERFERENCE TRIGGER
 ===================================================== */
@@ -1310,9 +1781,10 @@ document.addEventListener("click", function(event) {
     terminal.classList.add("file-interference");
 
     setTimeout(() => {
+
         terminal.classList.remove("file-interference");
+
     }, 700);
 
 });
-
 
